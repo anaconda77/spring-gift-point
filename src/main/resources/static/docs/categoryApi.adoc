@@ -1,5 +1,5 @@
 == 전체 카테고리 조회
-operation::rest-docs-category-test/get-all-categories[snippets="http-request,request-headers,http-response"]
+operation::rest-docs-category-test/get-all-categories[snippets="http-request,http-response"]
 == 카테고리 생성
 operation::rest-docs-category-test/add-category[snippets="http-request,request-headers,http-response"]
 == 카테고리 수정

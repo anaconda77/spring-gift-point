@@ -72,13 +72,9 @@ public class RestDocsCategoryTest extends AbstractRestDocsTest {
             .willReturn(categories);
 
         //when then
-        mockMvc.perform(get("/api/categories")
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/api/categories"))
             .andExpect(status().isOk())
-            .andDo(document("rest-docs-category-test/get-all-categories",
-                requestHeaders(
-                    headerWithName("Authorization").description("service access token")
-                )));
+            .andDo(print());
     }
 
     @Test

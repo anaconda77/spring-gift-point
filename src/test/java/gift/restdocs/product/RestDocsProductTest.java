@@ -92,13 +92,9 @@ public class RestDocsProductTest extends AbstractRestDocsTest {
             .willReturn(pagedAllProducts);
 
         //when //then
-        mockMvc.perform(get("/api/products?page=" + page + "&size=" + size)
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/api/products?page=" + page + "&size=" + size))
             .andExpect(status().isOk())
             .andDo(document("rest-docs-product-test/get-all-products",
-                requestHeaders(
-                    headerWithName("Authorization").description("service access token")
-                ),
                 queryParameters(
                     parameterWithName("page").description("page number"),
                     parameterWithName("size").description("number of products")

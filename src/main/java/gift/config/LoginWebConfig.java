@@ -4,10 +4,13 @@ import gift.auth.AuthApiInterceptor;
 import gift.auth.AuthMvcInterceptor;
 import gift.auth.JwtTokenProvider;
 import gift.auth.OAuthService;
+import gift.auth.PathMethod;
+import gift.auth.ProxyAuthApiInterceptor;
 import gift.resolver.LoginMemberArgumentResolver;
 import java.util.List;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -25,17 +28,13 @@ public class LoginWebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthApiInterceptor(jwtTokenProvider, oAuthService))
-            .order(1)
-            .addPathPatterns("/api/**")
-            .excludePathPatterns("/api/members/register", "/api/members/login",
-                "/api/oauth2/kakao", "/view/**");
+        registry.addInterceptor(proxyAuthApiInterceptor())
+            .order(1);
         registry.addInterceptor(new AuthMvcInterceptor(jwtTokenProvider))
             .order(2)
             .addPathPatterns("/view/**")
             .excludePathPatterns("/api/**","/view/products", "/view/join",
                 "/view/login");
-
     }
 
     @Override
@@ -52,5 +51,17 @@ public class LoginWebConfig implements WebMvcConfigurer {
             .allowCredentials(true) // 클라이언트에 대한 응답에 credentials(인증 헤더, 쿠키)를 포함할 수 있는 여부
             .exposedHeaders("Location") // 클라이언트 측에 전달되는 응답에 노출을 허용하게 하는 헤더
             .maxAge(1800); // 예비 요청(options)의 결과값을 캐싱해놓을 수 있는 시간 (cross-origin 요청 시 캐싱에 의해 예비 요청 생략 가능)
+    }
+
+    private HandlerInterceptor proxyAuthApiInterceptor() {
+        ProxyAuthApiInterceptor proxy = new ProxyAuthApiInterceptor(
+            new AuthApiInterceptor(jwtTokenProvider, oAuthService));
+        return proxy
+            .addPathPatterns(PathMethod.ANY, "/api/**")
+            .excludePathPatterns(PathMethod.ANY,
+                "/api/members/register", "/api/members/login",
+                "/api/oauth2/kakao", "/view/**")
+            .excludePathPatterns(PathMethod.GET, "/api/categories")
+            .excludePathPatterns(PathMethod.GET, "/api/products");
     }
 }
